@@ -24,8 +24,15 @@ fn main() {
     let args = Args::parse();
 
     let mut ips = getips();
+
     let wgetcommands = ips.iter().map(|ip| wgetify(ip, args.port, &args.file));
     wgetcommands.for_each(|cmd| println!("{}", cmd));
+
+    println!();
+
+    let curlcommands = ips.iter().map(|ip| curlify(ip, args.port, &args.file));
+    curlcommands.for_each(|cmd| println!("{}", cmd));
+
 
     let HOST: String = "0.0.0.0".to_string();
     let PORT = args.port.to_string();
@@ -82,3 +89,8 @@ fn wgetify(ip: &String, port: u16, file: &String) -> String {
     format!("wget http://{}:{} -O {}", ip, port, filename)
 }
 
+fn curlify(ip: &String, port: u16, file: &String) -> String {
+    let filename = file.split("/").last().unwrap();
+
+    format!("curl http://{}:{} -o {}", ip, port, filename)
+}
