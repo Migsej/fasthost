@@ -23,7 +23,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let mut ips = getips();
+    let ips = getips();
 
     let wgetcommands = ips.iter().map(|ip| wgetify(ip, args.port, &args.file));
     wgetcommands.for_each(|cmd| println!("{}", cmd));
@@ -34,18 +34,18 @@ fn main() {
     curlcommands.for_each(|cmd| println!("{}", cmd));
 
 
-    let HOST: String = "0.0.0.0".to_string();
-    let PORT = args.port.to_string();
+    let host: String = "0.0.0.0".to_string();
+    let port = args.port.to_string();
     
 
-    let mut contents = fs::read(args.file)
+    let contents = fs::read(args.file)
         .expect("Something went wrong reading the file");
 
-    let end_point : String = HOST.to_owned() + ":" +  PORT.as_str();
+    let end_point : String = host.to_owned() + ":" +  port.as_str();
 
     let listener = TcpListener::bind(end_point).unwrap();
 
-    println!("Web server is listening at port {}",PORT);
+    println!("Web server is listening at port {}",port);
 
     for stream in listener.incoming() {
         let _stream = stream.unwrap();
@@ -66,6 +66,8 @@ fn handle_connection(mut streem: TcpStream, mut contents: Vec<u8>) {
 }
 
 fn getips() -> Vec<String> {
+    let filtered = vec!["127.0.0.1", "172.17.0.1"];
+    
     let output = Command::new("ifconfig")
         .output()
         .expect("failed to execute `ifconfig`");
@@ -77,7 +79,9 @@ fn getips() -> Vec<String> {
     let mut result = Vec::new();
 
     for cap in re.captures_iter(&stdout) {
-        result.push(cap[2].to_string());
+        if !filtered.contains(&&cap[2]) {
+            result.push(cap[2].to_string());
+        }
     }
     result
 
