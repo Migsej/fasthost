@@ -3,25 +3,18 @@ use std::process::Command;
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::fs;
-use clap::Parser;
 use regex::Regex;
+use clap::Parser;
 
+mod arguments;
+mod commands;
 
-/// Simple program to greet a person
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// file to host
-    #[arg(short, long)]
-    file: String,
+use arguments::ProgramArgs;
 
-    /// port to host on
-    #[arg(short, long, default_value = "12345")]
-    port: u16,
-}
+use commands::{curlify, wgetify};
 
 fn main() {
-    let args = Args::parse();
+    let args = ProgramArgs::parse();
 
     let ips = getips();
 
@@ -87,14 +80,3 @@ fn getips() -> Vec<String> {
 
 }
 
-fn wgetify(ip: &String, port: u16, file: &String) -> String {
-    let filename = file.split("/").last().unwrap();
-
-    format!("wget http://{}:{} -O {}", ip, port, filename)
-}
-
-fn curlify(ip: &String, port: u16, file: &String) -> String {
-    let filename = file.split("/").last().unwrap();
-
-    format!("curl http://{}:{} -o {}", ip, port, filename)
-}
