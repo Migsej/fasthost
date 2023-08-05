@@ -5,7 +5,6 @@ use clap::Parser;
 #[command(author, version, about, long_about = None)]
 pub struct ProgramArgs {
     /// file to host
-    #[arg(short, long)]
     pub file: String,
 
     /// port to host on
